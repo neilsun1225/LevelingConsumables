@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.2 — 2026-10-25
+
+- Fix old generated macros being missed after the game saves a trailing newline or platform-specific line endings.
+- Apply the same normalization when updating short macros, avoiding repeated edits and false custom-macro conflicts.
+- If short macros already exist, disable old generated recovery macros and remove generated LC_Buff macros; preserve custom edits.
+
+- 修复游戏保存后的末尾换行或不同平台换行格式导致旧宏未被识别、迁移和清理的问题。
+- 新旧宏已共存时，停用旧恢复宏并删除插件生成的 LC_Buff；保留用户自定义内容。
+
 ## 0.2.1 — 2026-10-25
 
 - Shorten macro names to LCF, LCD, LCH and LCM.

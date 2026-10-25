@@ -182,8 +182,15 @@ local function MacroBody(category, itemID)
     return "#showtooltip\n" .. MARKER .. category
 end
 
+local function NormalizeMacroBody(body)
+    if type(body) ~= "string" then return nil end
+    -- GetMacroInfo can return a final newline after the game saves a macro.
+    return (body:gsub("\r\n", "\n"):gsub("\r", "\n"):gsub("\n+$", ""))
+end
+
 local function IsManagedMacro(body, category)
-    if type(body) ~= "string" then return false end
+    body = NormalizeMacroBody(body)
+    if not body then return false end
     if body == MacroBody(category) then return true end
     local shown, used = body:match("^#showtooltip item:(%d+)\n/use item:(%d+)\n" .. MARKER .. category .. "$")
     return shown ~= nil and shown == used
@@ -193,7 +200,7 @@ local function FindAccountMacro(name)
     local accountMacros = GetNumMacros()
     for index = 1, accountMacros do
         local macroName, _, body = GetMacroInfo(index)
-        if macroName == name then return index, body end
+        if macroName == name then return index, NormalizeMacroBody(body) end
     end
 end
 
@@ -211,7 +218,7 @@ local function DisableLegacyMacros(category)
     ForEachMacro(function(index)
         local name, _, oldBody = GetMacroInfo(index)
         if name == legacyName and IsManagedMacro(oldBody, category) then
-            if oldBody ~= body then EditMacro(index, nil, nil, body) end
+            if NormalizeMacroBody(oldBody) ~= body then EditMacro(index, nil, nil, body) end
             found = true
         end
     end)
