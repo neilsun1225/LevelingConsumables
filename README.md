@@ -30,7 +30,7 @@ The selected items update when your supplies run out, your bags change, you leve
 
 No configuration is needed for everyday use. Type `/lc` for optional commands. Automatic food and drink detection supports English and Simplified Chinese item tooltips.
 
-When upgrading, the addon handles old generated macros and removes obsolete buff-food macros. A chat message lets you know if anything needs your attention.
+When upgrading, the addon removes old generated macros and reconnects their action-bar buttons to the short macros. Custom macro content is preserved. A chat message lets you know if anything needs your attention.
 
 ## 简体中文
 
@@ -60,7 +60,7 @@ When upgrading, the addon handles old generated macros and removes obsolete buff
 
 日常使用无需配置；输入 `/lc` 可查看可选命令。食物和饮料的自动识别支持简体中文与英文物品提示。
 
-从旧版升级时，插件会自动处理旧宏并清理遗留的增益食物宏；遇到需要手动处理的情况，会在聊天栏提示。
+从旧版升级时，插件会自动清理旧版生成的宏，将旧恢复宏的技能栏按钮接续到短宏，并保留用户自定义内容；遇到需要手动处理的情况，会在聊天栏提示。
 
 ---
 

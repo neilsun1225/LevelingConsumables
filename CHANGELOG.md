@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.3 — 2026-10-25
+
+- Delete generated old-name recovery macros instead of leaving disabled entries in the macro list.
+- Reconnect their action-bar buttons to LCF, LCD, LCH and LCM; keep existing short macros and custom macro content.
+- Wait until combat ends and the cursor is empty before migrating macros and action buttons.
+
+- 自动删除旧版生成的恢复宏，避免宏列表中残留无法使用的旧宏。
+- 将旧恢复宏的技能栏按钮接续到 LCF、LCD、LCH、LCM，保留已有短宏和用户自定义内容。
+- 在脱战且鼠标未拖动物品时执行迁移与清理。
+
 ## 0.2.2 — 2026-10-25
 
 - Fix old generated macros being missed after the game saves a trailing newline or platform-specific line endings.

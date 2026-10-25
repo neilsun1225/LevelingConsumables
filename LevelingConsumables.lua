@@ -212,21 +212,32 @@ local function ForEachMacro(callback)
     for index = accountMacros, 1, -1 do callback(index) end
 end
 
-local function DisableLegacyMacros(category)
-    local legacyName, body = LEGACY_MACRO_NAMES[category], MacroBody(category)
-    local found = false
+local function RemoveLegacyMacros(category)
+    local legacyName = LEGACY_MACRO_NAMES[category]
+    local actionSlots = {}
     ForEachMacro(function(index)
         local name, _, oldBody = GetMacroInfo(index)
         if name == legacyName and IsManagedMacro(oldBody, category) then
-            if NormalizeMacroBody(oldBody) ~= body then EditMacro(index, nil, nil, body) end
-            found = true
+            for slot = 1, 180 do
+                local actionType, macroIndex, subType = GetActionInfo(slot)
+                if actionType == "macro" and subType and GetActionText(slot) == legacyName then
+                    -- Some clients return the macro's item/spell ID instead of its index.
+                    PickupAction(slot)
+                    local cursorType, cursorIndex = GetCursorInfo()
+                    PlaceAction(slot)
+                    ClearCursor()
+                    macroIndex = cursorType == "macro" and cursorIndex or nil
+                elseif subType then
+                    macroIndex = nil
+                end
+                if actionType == "macro" and macroIndex == index then
+                    actionSlots[#actionSlots + 1] = slot
+                end
+            end
+            DeleteMacro(index)
         end
     end)
-    if found and not warned[legacyName] then
-        Say("旧宏 " .. legacyName .. " 已停用；请改用通用宏 " .. MACRO_NAMES[category]
-            .. "。如新宏不存在，请先处理同名冲突或宏栏已满，再 /lc refresh。")
-        warned[legacyName] = true
-    end
+    return actionSlots
 end
 
 local function UpdateMacro(category, itemID)
@@ -236,7 +247,7 @@ local function UpdateMacro(category, itemID)
     selected[category] = nil
     if index and not IsManagedMacro(oldBody, category) then
         if not warned[name] then Say("已有同名自定义宏 " .. name .. "，已跳过；请将它改名后 /lc refresh。") warned[name] = true end
-        DisableLegacyMacros(category)
+        RemoveLegacyMacros(category)
         return
     end
 
@@ -249,7 +260,9 @@ local function UpdateMacro(category, itemID)
             index, oldBody = FindAccountMacro(name)
         end
     end
-    DisableLegacyMacros(category)
+    local actionSlots = RemoveLegacyMacros(category)
+    -- Deleting old macros changes sorted indices, including the replacement's.
+    index, oldBody = FindAccountMacro(name)
 
     if not index then
         local ok, createdIndex = pcall(CreateMacro, name, "INV_Misc_QuestionMark", body, false)
@@ -258,9 +271,19 @@ local function UpdateMacro(category, itemID)
             return
         end
         index = createdIndex
-        Say("已创建账号通用宏 " .. name .. "；请从宏界面的通用宏栏拖到技能栏。")
+        if #actionSlots == 0 then
+            Say("已创建账号通用宏 " .. name .. "；请从宏界面的通用宏栏拖到技能栏。")
+        end
     else
         if oldBody ~= body then EditMacro(index, nil, nil, body) end
+    end
+    for _, slot in ipairs(actionSlots) do
+        PickupMacro(index)
+        PlaceAction(slot)
+        ClearCursor()
+    end
+    if #actionSlots > 0 then
+        Say("已将旧宏 " .. LEGACY_MACRO_NAMES[category] .. " 的技能栏按钮替换为 " .. name .. "，并清理旧宏。")
     end
     selected[category] = itemID
 end
@@ -273,7 +296,7 @@ local function RemoveLegacyBuffMacros()
 end
 
 local function Refresh()
-    if InCombatLockdown() then pending = true return end
+    if InCombatLockdown() or GetCursorInfo() then pending = true return end
     pending = false
     RemoveLegacyBuffMacros()
     local best = ScanBags()
@@ -298,7 +321,7 @@ local function PrintStatus()
         local name = itemID and (C_Item.GetItemInfo(itemID) or ("item:" .. itemID)) or "无"
         Say(MACRO_NAMES[category] .. "（" .. LABELS[category] .. "）: " .. name)
     end
-    if pending then Say("背包在战斗中变化；脱离战斗后会更新图标。") end
+    if pending then Say("宏更新暂缓；脱离战斗并放下鼠标拖动的物品后会自动更新。") end
 end
 
 local function PrintExtras()
@@ -348,7 +371,9 @@ events:RegisterEvent("BAG_UPDATE_DELAYED")
 events:RegisterEvent("PLAYER_LEVEL_UP")
 events:RegisterEvent("GET_ITEM_INFO_RECEIVED")
 events:RegisterEvent("PLAYER_REGEN_ENABLED")
+events:RegisterEvent("CURSOR_CHANGED")
 events:SetScript("OnEvent", function(_, event)
+    if event == "CURSOR_CHANGED" and not pending then return end
     if event == "PLAYER_LOGIN" then DB() end
     RequestRefresh()
 end)
