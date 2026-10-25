@@ -1,0 +1,10 @@
+## Interface: 11509, 16001
+## Title: Leveling Consumables
+## Notes: Keeps food, drink, healing potion and mana potion macros in sync with your bags.
+## Notes-zhCN: 根据当前角色背包自动更新食物、饮料、治疗药水和法力药水的通用宏。
+## Author: Ballyh (B站八厉害)
+## Version: 0.2.1
+## X-License: MIT
+## SavedVariables: LevelingConsumablesDB
+
+LevelingConsumables.lua
