@@ -5,6 +5,7 @@
 ## Author: Ballyh (B站八厉害)
 ## Version: 0.2.1
 ## X-License: MIT
+## X-Wago-ID: 56nb2a69
 ## SavedVariables: LevelingConsumablesDB
 
 LevelingConsumables.lua

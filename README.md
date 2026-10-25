@@ -64,4 +64,4 @@ When upgrading, the addon handles old generated macros and removes obsolete buff
 
 ---
 
-**Author / 作者：Ballyh (B站八厉害)** · [MIT License / 开源许可](LICENSE)
+**Author / 作者：Ballyh (B站八厉害)** · [MIT License / 开源许可](https://github.com/neilsun1225/LevelingConsumables/blob/main/LICENSE)
